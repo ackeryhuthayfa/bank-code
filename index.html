@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ Banking Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        pre {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow: auto;
+            white-space: pre-wrap; /* Allows for line wrapping */
+        }
+    </style>
+</head>
+<body>
+    <h1>C++ Banking Code</h1>
+    <pre><code class="cpp">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;vector&gt;
+#include &lt;limits&gt;
+#include &lt;cctype&gt;
+
+class BankAccount {
+private:
+    std::string accountHolderName;
+    long long accountNumber;  
+    float balance;
+    char accountType;
+    std::vector&lt;std::string&gt; transactionHistory;
+
+public:
+    BankAccount(std::string name, long long number, float initialBalance, char type) 
+        : accountHolderName(name), accountNumber(number), balance(initialBalance), accountType(type) {}
+
+    void depositMoney(float amount) {
+        if (amount > 0) {
+            balance += amount;
+            transactionHistory.push_back(&quot;Deposit: &quot; + std::to_string(amount));
+            std::cout &lt;&lt; &quot;Deposit Successful. New balance: &quot; &lt;&lt; balance &lt;&lt; std::endl;
+        } else {
+            std::cout &lt;&lt; &quot;Deposit amount must be positive.&quot; &lt;&lt; std::endl;
+        }
+    }
+
+    void withdrawMoney(float amount) {
+        if (amount > 0) {
+            if (balance >= amount) {
+                balance -= amount;
+                transactionHistory.push_back(&quot;Withdrawal: &quot; + std::to_string(amount));
+                std::cout &lt;&lt; &quot;Withdrawal Successful. New balance: &quot; &lt;&lt; balance &lt;&lt; std::endl;
+            } else {
+                std::cout &lt;&lt; &quot;Insufficient balance.&quot; &lt;&lt; std::endl;
+            }
+        } else {
+            std::cout &lt;&lt; &quot;Withdrawal amount must be positive.&quot; &lt;&lt; std::endl;
+        }
+    }
+
+    void displayAccountInfo() const {
+        std::cout &lt;&lt; &quot;Account Holder Name: &quot; &lt;&lt; accountHolderName &lt;&lt; std::endl;
+        std::cout &lt;&lt; &quot;Account Number: &quot; &lt;&lt; accountNumber &lt;&lt; std::endl;
+        std::cout &lt;&lt; &quot;Account Type: &quot; &lt;&lt; accountType &lt;&lt; std::endl;
+        std::cout &lt;&lt; &quot;Balance: &quot; &lt;&lt; balance &lt;&lt; std::endl;
+    }
+
+    void displayTransactionHistory() const {
+        std::cout &lt;&lt; &quot;Transaction History:&quot; &lt;&lt; std::endl;
+        for (const auto&amp; transaction : transactionHistory) {
+            std::cout &lt;&lt; transaction &lt;&lt; std::endl;
+        }
+    }
+
+    long long getAccountNumber() const {
+        return accountNumber;
+    }
+};
+
+long long currentAccountNumber = 27115000001;  
+
+long long generateAccountNumber() {
+    return currentAccountNumber++; 
+}
+
+bool isValidName(const std::string&amp; name) {
+    for (char ch : name) {
+        if (!std::isalpha(ch) && ch != ' ') {
+            return false;
+        }
+    }
+    return true;
+}
+
+BankAccount openNewAccount() {
+    std::string name;
+    float initialBalance;
+    char type;
+    long long accountNumber = generateAccountNumber();  
+
+    while (true) {
+        std::cout &lt;&lt; &quot;Enter account holder name: &quot;;
+        std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '\n'); // Clear input buffer
+        std::getline(std::cin, name);
+        
+        if (isValidName(name)) {
+            break; // Valid name
+        } else {
+            std::cout &lt;&lt; &quot;Invalid name. Please enter alphabetic characters only.&quot; &lt;&lt; std::endl;
+        }
+    }
+
+    while (true) {
+        std::cout &lt;&lt; &quot;Enter initial balance: &quot;;
+        std::cin &gt;&gt; initialBalance;
+
+        if (std::cin.fail() || initialBalance &lt; 0) {
+            std::cin.clear(); // Clear the error flag
+            std::cin.ignore(std::numeric_limits&lt;std::streamsize&gt;::max(), '\n'); // Discard invalid input
+            std::cout &lt;&lt; &quot;Invalid balance. Please enter a positive number.&quot; &lt;&lt; std::endl;
+        } else {
+            break; // Valid balance
+        }
+    }
+
+    while (true) {
+        std::cout &lt;&lt; &quot;Enter account type (S for Savings, C for Current): &quot;;
+        std::cin &gt;&gt; type;
+
+        if (type == 'S' || type == 'C') {
+            break; // Valid account type
+        } else {
+            std::cout &lt;&lt; &quot;Invalid account type. Please enter 'S' for Savings or 'C' for Current.&quot; &lt;&lt; std::endl;
+        }
+    }
+
+    BankAccount newAccount(name, accountNumber, initialBalance, type);
+    std::cout &lt;&lt; &quot;Account opened successfully! Your account number is &quot; &lt;&lt; accountNumber &lt;&lt; &quot;\n&quot;;
+    return newAccount;
+}
+
+int main() {
+    std::vector&lt;BankAccount&gt; accounts;
+    int choice;
+
+    while (true) {
+        std::cout &lt;&lt; &quot;1. Open a new account\n2. Display account info\n3. Deposit money\n4. Withdraw money\n5. Display transaction history\n6. Exit\n&quot;;
+        std::cout &lt;&lt; &quot;Enter your choice: &quot;;
+        std::cin &gt;&gt; choice;
+
+        switch (choice) {
+            case 1: {
+                BankAccount newAccount = openNewAccount();
+                accounts.push_back(newAccount);
+                break;
+            }
+            case 2: {
+                long long accountNumber;
+                std::cout &lt;&lt; &quot;Enter account number: &quot;;
+                std::cin &gt;&gt; accountNumber;
+
+                bool found = false;
+                for (const auto&amp; account : accounts) {
+                    if (account.getAccountNumber() == accountNumber) {
+                        account.displayAccountInfo();
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    std::cout &lt;&lt; &quot;Account not found.\n&quot;;
+                }
+                break;
+            }
+            case 3: {
+                long long accountNumber;
+                float depositAmount;
+                std::cout &lt;&lt; &quot;Enter account number: &quot;;
+                std::cin &gt;&gt; accountNumber;
+
+                bool found = false;
+                for (auto&amp; account : accounts) {
+                    if (account.getAccountNumber() == accountNumber) {
+                        std::cout &lt;&lt; &quot;Enter amount to deposit: &quot;;
+                        std::cin &gt;&gt; depositAmount;
+                        account.depositMoney(depositAmount);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    std::cout &lt;&lt; &quot;Account not found.\n&quot;;
+                }
+                break;
+            }
+            case 4: {
+                long long accountNumber;
+                float withdrawalAmount;
+                std::cout &lt;&lt; &quot;Enter account number: &quot;;
+                std::cin &gt;&gt; accountNumber;
+
+                bool found = false;
+                for (auto&amp; account : accounts) {
+                    if (account.getAccountNumber() == accountNumber) {
+                        std::cout &lt;&lt; &quot;Enter amount to withdraw: &quot;;
+                        std::cin &gt;&gt; withdrawalAmount;
+                        account.withdrawMoney(withdrawalAmount);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    std::cout &lt;&lt; &quot;Account not found.\n&quot;;
+                }
+                break;
+            }
+            case 5: {
+                long long accountNumber;
+                std::cout &lt;&lt; &quot;Enter account number: &quot;;
+                std::cin &gt;&gt; accountNumber;
+
+                bool found = false;
+                for (const auto&amp; account : accounts) {
+                    if (account.getAccountNumber() == accountNumber) {
+                        account.displayTransactionHistory();
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    std::cout &lt;&lt; &quot;Account not found.\n&quot;;
+                }
+                break;
+            }
+            case 6:
+                std::cout &lt;&lt; &quot;Exiting program.&quot; &lt;&lt; std::endl;
+                return 0;
+            default:
+                std::cout &lt;&lt; &quot;Invalid choice. Please try again.&quot; &lt;&lt; std::endl;
+        }
+    }
+
+    return 0;
+}
+    </code></pre>
+</body>
+</html>
